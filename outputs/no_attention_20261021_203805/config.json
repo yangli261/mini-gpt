@@ -1,0 +1,22 @@
+{
+  "architecture": "current_embedding_plus_causal_prefix_mean_MLP",
+  "attention": false,
+  "positional_encoding": false,
+  "vocab_size": 128,
+  "encoding": "ASCII",
+  "channels": 64,
+  "hidden": 128,
+  "batch_size": 32,
+  "block_size": 32,
+  "steps": 1200,
+  "lr": 0.003,
+  "seed": 42,
+  "parameters": 41216,
+  "seconds": 7.917240400012815,
+  "split_lengths": {
+    "train": 892315,
+    "val": 111539,
+    "test": 111540
+  },
+  "comparison_caveat": "Different parameter counts, learning rates and compute; not an isolated attention ablation."
+}

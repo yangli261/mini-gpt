@@ -1,0 +1,26 @@
+{
+  "model": {
+    "vocab_size": 128,
+    "max_length": 32,
+    "channels": 64,
+    "num_heads": 4,
+    "num_layers": 2
+  },
+  "encoding": "ASCII",
+  "batch_size": 32,
+  "steps": 1,
+  "learning_rate": 0.001,
+  "optimizer": "AdamW",
+  "model_seed": 42,
+  "train_seed": 123,
+  "eval_seed": 999,
+  "sample_seed": 2026,
+  "eval_batches_per_split": 10,
+  "split_lengths": {
+    "train": 892315,
+    "val": 111539,
+    "test": 111540
+  },
+  "parameters": 118272,
+  "seconds": 1.8417107000004762
+}

@@ -1,0 +1,36 @@
+{
+  "split": "test",
+  "data": "data/tinyshakespeare.txt",
+  "encoding": "ASCII",
+  "character_range": [
+    1003854,
+    1115394
+  ],
+  "block_size": 32,
+  "context_policy": "Reset context at each block; score every next character once, excluding the first character.",
+  "checkpoints": {
+    "bigram": "outputs/bigram/model.pt",
+    "prefix_mean": "outputs/no_attention_20261021_203805/model.pt",
+    "mini_gpt": "outputs/mini_gpt_20261112_160340/model.pt"
+  },
+  "models": {
+    "bigram": {
+      "parameters": 16384,
+      "positions": 111539,
+      "loss_nats_per_char": 2.5172336171279768,
+      "perplexity": 12.394261920063943
+    },
+    "prefix_mean": {
+      "parameters": 41216,
+      "positions": 111539,
+      "loss_nats_per_char": 2.4023307569986336,
+      "perplexity": 11.048898690720524
+    },
+    "mini_gpt": {
+      "parameters": 118272,
+      "positions": 111539,
+      "loss_nats_per_char": 2.0741887465932294,
+      "perplexity": 7.958087813739716
+    }
+  }
+}
