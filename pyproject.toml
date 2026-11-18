@@ -1,2 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "minigpt"
+version = "0.1.0"
+description = "字符级 mini-GPT：从零实现、训练与评测"
+requires-python = ">=3.10"
+dependencies = ["torch>=2.4"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = ["minigpt"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

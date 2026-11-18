@@ -12,3 +12,8 @@ outputs/**/model.pt
 #编辑器
 .vscode/
 .idea/
+
+#打包产物
+*.egg-info/
+build/
+dist/
