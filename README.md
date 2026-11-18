@@ -1,5 +1,7 @@
 # mini-gpt
 
+[![ci](https://github.com/yangli261/mini-gpt/actions/workflows/ci.yml/badge.svg)](https://github.com/yangli261/mini-gpt/actions/workflows/ci.yml)
+
 从零实现的字符级语言模型。手写 Transformer，在 [Tiny Shakespeare](https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt)（约 1.1 MB）上训练，并与 Bigram、前缀平均两个基线在同一保留测试集上对比。
 
 不依赖 `transformers` 等高层库，全部用 PyTorch 原生算子实现。
