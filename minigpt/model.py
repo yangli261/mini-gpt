@@ -4,44 +4,53 @@ from torch import nn
 from torch.nn import functional as F
 
 class AttentionHead(nn.Module):
-    def __init__(self, channels, head_dim, max_length):
+    def __init__(self,channels,head_dim,max_length,uniform = False):
         super().__init__()
 
-        self.query = nn.Linear(channels, head_dim, bias=False)
-        self.key = nn.Linear(channels, head_dim, bias=False)
-        self.value = nn.Linear(channels, head_dim, bias=False)
+        self.uniform = uniform
+        self.query = nn.Linear(channels,head_dim,bias=False)
+        self.key = nn.Linear(channels,head_dim,bias=False)
+        self.value = nn.Linear(channels,head_dim,bias=False)
 
         self.register_buffer(
             "allowed",
-            torch.tril(
-                torch.ones(max_length, max_length, dtype=torch.bool)
-            ),
+            torch.tril(torch.ones(max_length,max_length,dtype=torch.bool)
+                       ),
         )
 
-    def forward(self, h):
+
+    def forward(self,h):
         T = h.shape[1]
-        q = self.query(h)
-        k = self.key(h)
         v = self.value(h)
 
-        scores = q @ k.transpose(-2, -1)
-        scores = scores / math.sqrt(q.shape[-1])
-        scores = scores.masked_fill(
-            ~self.allowed[:T, :T], float("-inf")
+        if self.uniform:
+            mask = self.allowed[:T,:T].to(h.dtype)
+            weights = mask/mask.sum(dim = -1, keepdim=True)
+            weights = weights.expand(h.shape[0],-1,-1)
+            return weights @ v, weights
+
+        q = self.query(h)
+        k = self.key(h)
+
+        sorces = q @ k.transpose(-2,-1)
+        sorces = sorces / math.sqrt(q.shape[-1])
+        sorces = sorces.masked_fill(
+            ~self.allowed[:T,:T],float("-inf")
         )
 
-        weights = scores.softmax(dim=-1)
+
+        weights = sorces.softmax(dim = -1)
         return weights @ v, weights
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, channels=8, num_heads=2, max_length=4):
+    def __init__(self, channels=8, num_heads=2, max_length=4,uniform=False):
         super().__init__()
         assert channels % num_heads == 0
         head_dim = channels // num_heads
 
         self.heads = nn.ModuleList([
-            AttentionHead(channels, head_dim, max_length)
+            AttentionHead(channels, head_dim, max_length,uniform=uniform)
             for _ in range(num_heads)
         ])
 
@@ -62,10 +71,10 @@ class MultiHeadAttention(nn.Module):
         return self.projection(joined), weights
 
 class TransformerBlock(nn.Module):
-    def __init__(self, channels, num_heads, max_length):
+    def __init__(self, channels, num_heads, max_length,uniform=False):
         super().__init__()
         self.ln1 = nn.LayerNorm(channels)
-        self.attn = MultiHeadAttention(channels, num_heads, max_length)
+        self.attn = MultiHeadAttention(channels, num_heads, max_length,uniform=uniform)
         self.ln2 = nn.LayerNorm(channels)
         self.ffn = nn.Sequential(
             nn.Linear(channels, 4 * channels),
@@ -81,13 +90,13 @@ class TransformerBlock(nn.Module):
 
 
 class MiniGPT(nn.Module):
-    def __init__(self, vocab_size, max_length, channels, num_heads, num_layers):
+    def __init__(self, vocab_size, max_length, channels, num_heads, num_layers,uniform=False):
         super().__init__()
         self.max_length = max_length
         self.token_embedding = nn.Embedding(vocab_size, channels)
         self.position_embedding = nn.Embedding(max_length, channels)
         self.blocks = nn.Sequential(*(
-            TransformerBlock(channels, num_heads, max_length)
+            TransformerBlock(channels, num_heads, max_length,uniform=uniform)
             for _ in range(num_layers)
         ))
         self.final_norm = nn.LayerNorm(channels)

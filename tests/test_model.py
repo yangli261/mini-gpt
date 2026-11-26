@@ -97,4 +97,39 @@ def test_attention_weights_are_causal_and_normalized():
     row_sums = w.sum(dim = -1)
     max_err = (row_sums - 1).abs().max().item()
     assert max_err < 1e-12, f"行和不为1，最大偏差为{max_err:.3e}"
+
+def test_uniform_mode_has_same_parameter_count():
+    """两种模式的参数量必须完全相同
     
+    这是消融实验的前提：只有参数量一致，
+    结果的差异才能归因于[权重是否可学习]
+    
+    """
+    def build(uniform):
+        return MiniGPT(vocab_size=128,max_length=32,channels=64,num_heads=4,num_layers=2,uniform=uniform)
+    n_learned = sum(p.numel() for p in build(False).parameters())
+    n_uniform = sum(p.numel() for p in build(True).parameters())
+
+    assert n_learned == 118272
+    assert n_learned == n_uniform,(f"参数量不一致：学习模式：{n_learned}，均匀模式：{n_uniform}。")
+
+def test_uniform_weights_equal_one_over_t_plus_one():
+    """均匀模式下，第t行前t+1个位置权重各为1/(t+1)，其余为0。"""
+    torch.manual_seed(26)
+    head = AttentionHead(channels=6,head_dim=3,max_length=5,uniform=True).double()
+
+    B,T = 2,5
+    h = torch.randn(B,T,6,dtype=torch.float64)
+
+    with torch.no_grad():
+        _ , w = head(h)
+
+    assert w.shape == (B,T,T) ,(f"权重形状应为{(B,T,T)},实际为：{tuple(w.shape)}")
+
+    expected = torch.zeros(T,T,dtype=torch.float64)
+    for t in range(T):
+        expected[t,:t+1] = 1.0/(t+1)
+
+    for b in range(B):
+        max_diff = (w[b] - expected).abs().max().item()
+        assert torch.allclose(w[b],expected,atol=1e-12),(f"第{b}条样本权重不符，最大偏差为{max_diff:.3e}")
