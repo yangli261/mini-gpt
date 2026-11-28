@@ -82,7 +82,10 @@ python stage_05_transformer/08_train_mini_gpt.py
 
 | 路径 | 内容 |
 |---|---|
+| `minigpt/` | 可复用的模型实现（四个类的包） |
 | `stage_01` ~ `stage_06` | 逐课推导的教学脚本，按顺序看即可 |
+| `tests/` | 7 条单元测试，CI 每次推送自动运行 |
+| `docs/` | 消融实验的完整分析 |
 | `data/` | Tiny Shakespeare 语料 |
 | `outputs/` | 每次运行的 `config.json`、`history.json`、生成样例（权重文件不入库） |
 | `工作日志.md` | 完整推导记录与错题 |
